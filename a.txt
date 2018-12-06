@@ -1,0 +1,24 @@
+DSM04
+First homework.cpp
+UDP
+a.txt
+client
+functions
+help.cc
+ls.txt
+main.cpp
+pwd.txt
+python
+s10_1.cc
+s10_2.cc
+s12_1.cc
+server
+test
+test.cpp
+tets.cc
+times.2.gz
+week_1.html
+week_2.html
+Лекции
+
+C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp
