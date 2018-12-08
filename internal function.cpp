@@ -242,7 +242,6 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
 		argv.push_back((char*)allcommands[i].c_str());
 	argv.push_back(NULL);
 
-	/*std::cout << allcommands[0] << " " << input << " " << output << std::endl;*/
 	int status;
 	pid_t pid = fork(), wpid;
 	if (pid == 0) {
@@ -279,6 +278,7 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
 			if(output == STDOUT_FILENO || !conveyer) {
 				do {
 		        	wpid = waitpid(pid, &status, WUNTRACED);
+					//std::cout << "*" << std::endl;
 				}
 		   		while (!WIFEXITED(status) && !WIFSIGNALED(status)); //пока не завершит выполнение, или пока не появится сигнал, который либо завершает текущий процесс либо требует вызвать функцию-обработчик
 			}
@@ -304,6 +304,10 @@ std::vector<std::string> Glob(const std::string& pattern) {
     memset(&glob_result, 0, sizeof(glob_result));
 
     int return_value = glob(pattern.c_str(), 0, nullptr, &glob_result);
+	 if (return_value == GLOB_NOMATCH) {
+        globfree(&glob_result); //в случае ошибки могла записаться всякая ерунда
+        std::cout << "No matching found" << std::endl;
+    }
     if (return_value != 0 && return_value != GLOB_NOMATCH) {
         globfree(&glob_result); //в случае ошибки могла записаться всякая ерунда
         std::cout << "Sorry, glob() had failed and returned value" << return_value << ". Search in manual for more information."<< std::endl;
@@ -354,8 +358,6 @@ int main(void) {
 			if(split_intern_commands(allcommands[j], splitted_commands, in, out) == 0) {
 				break; //преобразовали каждую отдельно команду в вектор строк
 			}
-			/*for(auto i:splitted_commands)
-				std::cout << i << std::endl;*/
 			for(int i = 0; i < amount_of_commands; i++) {
 				if(splitted_commands[0] == inner_command[i]) {//если совпадает название команды с одной из внутренних ф-ций
 					pointers_to_functions[i](splitted_commands, in, out, conveyer);
@@ -376,3 +378,5 @@ int main(void) {
 	while(std::cin.eof() != 1);
     return 0;
 }
+
+/*C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp*/	
