@@ -306,7 +306,7 @@ std::vector<std::string> Glob(const std::string& pattern) {
     int return_value = glob(pattern.c_str(), 0, nullptr, &glob_result);
 	 if (return_value == GLOB_NOMATCH) {
         globfree(&glob_result); //в случае ошибки могла записаться всякая ерунда
-        std::cout << "No matching found" << std::endl;
+        std::cout << "No such file or directory" << std::endl;
     }
     if (return_value != 0 && return_value != GLOB_NOMATCH) {
         globfree(&glob_result); //в случае ошибки могла записаться всякая ерунда
@@ -375,8 +375,9 @@ int main(void) {
 		}
 		main_process = true;
 	}
+	//while(getchar() != EOF);
 	while(std::cin.eof() != 1);
     return 0;
 }
 
-/*C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp*/	
+/*C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp*/
