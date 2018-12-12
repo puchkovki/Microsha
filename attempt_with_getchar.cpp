@@ -328,9 +328,11 @@ int main(void) {
 	for(int i = 0; i < amount_of_commands; i++)
 		std::cout << inner_command[i] << std::endl;
     std::cout << std::endl << "External functions could be runned only if you write the correct path and arguments. If you try to run function in a pipeline component, metasimvols as \"<\" and \">\" are prohibited.\n" << std::endl;
+    
+    int c = 32;
 
-    do
-	{
+    
+	do {
 		bool conveyer = false;
 		bool match = false;
 		write_path_name();
@@ -341,6 +343,8 @@ int main(void) {
         catch(std::ios_base::failure e) {
             std::cerr << "Please, enter your line again\n";
         }
+        commands = (char)c + commands;
+        std::cout << commands;
 		main_process = false;
 		std::vector<std::string> allcommands;
 		split_extern_commands(commands, allcommands); //разделили на команды
@@ -375,9 +379,7 @@ int main(void) {
 		}
 		main_process = true;
 	}
-	//while(getchar() != EOF);
-	while(std::cin.eof() != 1);
+    while((c = getchar()) != EOF);
+	//while(std::cin.eof() != 1);
     return 0;
 }
-
-/*C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp*/
