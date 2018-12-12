@@ -1,24 +1,16 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <errno.h>
 #include <stdlib.h>
 #include <sstream>
 #include <sys/times.h>
-#include <pthread.h>
 #include <iomanip>
-#include <fstream>
-#include <stdio.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <algorithm>
 #include <cmath>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fnmatch.h>
 #include <csignal>
 #include <glob.h>
 #include <cstring>
@@ -138,9 +130,12 @@ void time(std::vector<std::string>& allcommands, int input, int output, bool con
 	allcommands.erase(allcommands.begin(), allcommands.begin() + 1); //удаляем "time"	
 	double real_minutes = 0, real_seconds = 0, user_minutes = 0, user_seconds = 0, system_minutes = 0, system_seconds = 0;
 	if(allcommands.size() > 0) {
-		std::clock_t c_start = std::clock();
 		struct tms buf;
-		times(&buf); //начало отсчета
+		if(times(&buf) == (clock_t) - 1) {
+			perror("Microsha: time");
+			return;
+		} //начало отсчета	
+		std::clock_t c_start = std::clock();
 
 		for(int i = 0; i < amount_of_commands; i++) {
 			if(allcommands[0] == inner_command[i]) {//если совпадает название команды с одной из внутренних ф-ций
@@ -152,10 +147,12 @@ void time(std::vector<std::string>& allcommands, int input, int output, bool con
 		if(match == false) {
 			extern_command(allcommands, input, output, conveyer);
 		}
-
-		std::clock_t c_end = std::clock();
-		times(&buf);
-		clock_t wall_time = c_end - c_start;
+		
+		clock_t wall_time = std::clock() - c_start;
+		if(times(&buf) == (clock_t) - 1) {
+			perror("Microsha: time");
+			return;
+		} //конец отсчета
 		real_minutes = floor(((double) wall_time) / CLOCKS_PER_SEC / 60 * 1000);
 		real_seconds = ((double) wall_time) / CLOCKS_PER_SEC * 1000  - real_minutes * 60;
 		user_minutes = floor((double) (buf.tms_utime + buf.tms_cutime) / CLOCKS_PER_SEC / 60 * 1000);
@@ -375,9 +372,6 @@ int main(void) {
 		}
 		main_process = true;
 	}
-	//while(getchar() != EOF);
 	while(std::cin.eof() != 1);
     return 0;
 }
-
-/*C:\Users\dns\Documents\GitHub\Microsha\internal function.cpp*/
