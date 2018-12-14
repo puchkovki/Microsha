@@ -1,24 +1,16 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <errno.h>
 #include <stdlib.h>
 #include <sstream>
 #include <sys/times.h>
-#include <pthread.h>
 #include <iomanip>
-#include <fstream>
-#include <stdio.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <algorithm>
 #include <cmath>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fnmatch.h>
 #include <csignal>
 #include <glob.h>
 #include <cstring>
@@ -64,7 +56,10 @@ int write_path_name(void) {
 }
 
 void read_commands(std::string& commands) {
-	std::getline(std::cin , commands); //считывает до \n, \r, \0, EOF
+	if(!getline(std::cin,commands)) {
+        std::cout << std::endl;
+        exit(EXIT_FAILURE);
+    }
 	return;
 }
 
@@ -138,9 +133,12 @@ void time(std::vector<std::string>& allcommands, int input, int output, bool con
 	allcommands.erase(allcommands.begin(), allcommands.begin() + 1); //удаляем "time"	
 	double real_minutes = 0, real_seconds = 0, user_minutes = 0, user_seconds = 0, system_minutes = 0, system_seconds = 0;
 	if(allcommands.size() > 0) {
-		std::clock_t c_start = std::clock();
 		struct tms buf;
-		times(&buf); //начало отсчета
+		if(times(&buf) == (clock_t) - 1) {
+			perror("Microsha: time");
+			return;
+		} //начало отсчета	
+		std::clock_t c_start = std::clock();
 
 		for(int i = 0; i < amount_of_commands; i++) {
 			if(allcommands[0] == inner_command[i]) {//если совпадает название команды с одной из внутренних ф-ций
@@ -152,10 +150,12 @@ void time(std::vector<std::string>& allcommands, int input, int output, bool con
 		if(match == false) {
 			extern_command(allcommands, input, output, conveyer);
 		}
-
-		std::clock_t c_end = std::clock();
-		times(&buf);
-		clock_t wall_time = c_end - c_start;
+		
+		clock_t wall_time = std::clock() - c_start;
+		if(times(&buf) == (clock_t) - 1) {
+			perror("Microsha: time");
+			return;
+		} //конец отсчета
 		real_minutes = floor(((double) wall_time) / CLOCKS_PER_SEC / 60 * 1000);
 		real_seconds = ((double) wall_time) / CLOCKS_PER_SEC * 1000  - real_minutes * 60;
 		user_minutes = floor((double) (buf.tms_utime + buf.tms_cutime) / CLOCKS_PER_SEC / 60 * 1000);
@@ -328,11 +328,9 @@ int main(void) {
 	for(int i = 0; i < amount_of_commands; i++)
 		std::cout << inner_command[i] << std::endl;
     std::cout << std::endl << "External functions could be runned only if you write the correct path and arguments. If you try to run function in a pipeline component, metasimvols as \"<\" and \">\" are prohibited.\n" << std::endl;
-    
-    int c = 32;
 
-    
-	do {
+    do
+	{
 		bool conveyer = false;
 		bool match = false;
 		write_path_name();
@@ -343,8 +341,6 @@ int main(void) {
         catch(std::ios_base::failure e) {
             std::cerr << "Please, enter your line again\n";
         }
-        commands = (char)c + commands;
-        std::cout << commands;
 		main_process = false;
 		std::vector<std::string> allcommands;
 		split_extern_commands(commands, allcommands); //разделили на команды
@@ -379,7 +375,6 @@ int main(void) {
 		}
 		main_process = true;
 	}
-    while((c = getchar()) != EOF);
-	//while(std::cin.eof() != 1);
+	while(std::cin.eof() != 1);
     return 0;
 }

@@ -16,7 +16,7 @@
 #include <cstring>
 
 int write_path_name(void);
-void read_commands(std::string& commands);
+bool read_commands(std::string& commands);
 int split_intern_commands(std::string& commands, std::vector<std::string>& allcommands, int& input, int& output);
 void split_extern_commands(std::string& commands, std::vector<std::string>& allcommands);
 void cd(std::vector<std::string>& allcommands, int input, int output, bool conveyer);
@@ -55,9 +55,13 @@ int write_path_name(void) {
 	return 0;
 }
 
-void read_commands(std::string& commands) {
-	std::getline(std::cin , commands); //считывает до \n, \r, \0, EOF
-	return;
+bool read_commands(std::string& commands) {
+	std::cin.clear();
+	if(!getline(std::cin,commands)) {
+        perror("Microsha");
+		return false;
+    } //считывает до \n, \r, \0, EOF
+	return true;
 }
 
 void split_extern_commands(std::string& commands, std::vector<std::string>& allcommands) {
@@ -264,7 +268,8 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
         }
 		if(execvp(argv[0], &argv[0]) < 0) { //выолнение внешней команды
 			perror("Microsha");
-			close(STDOUT_FILENO);//close(STDIN_FILENO);
+			close(STDOUT_FILENO);
+			//return;
 			exit(EXIT_FAILURE);
 		}
 	} else
@@ -275,7 +280,6 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
 			if(output == STDOUT_FILENO || !conveyer) {
 				do {
 		        	wpid = waitpid(pid, &status, WUNTRACED);
-					//std::cout << "*" << std::endl;
 				}
 		   		while (!WIFEXITED(status) && !WIFSIGNALED(status)); //пока не завершит выполнение, или пока не появится сигнал, который либо завершает текущий процесс либо требует вызвать функцию-обработчик
 			}
@@ -326,14 +330,17 @@ int main(void) {
 		std::cout << inner_command[i] << std::endl;
     std::cout << std::endl << "External functions could be runned only if you write the correct path and arguments. If you try to run function in a pipeline component, metasimvols as \"<\" and \">\" are prohibited.\n" << std::endl;
 
+	bool status; 
+
     do
 	{
+		status = true;
 		bool conveyer = false;
 		bool match = false;
 		write_path_name();
 		std::string commands;
 		try {//проверяем на сигнал
-			read_commands(commands);
+			status = read_commands(commands);
         }
         catch(std::ios_base::failure e) {
             std::cerr << "Please, enter your line again\n";
@@ -372,6 +379,7 @@ int main(void) {
 		}
 		main_process = true;
 	}
-	while(std::cin.eof() != 1);
+	while(status != false);
+	std::cout << std::endl;
     return 0;
 }
