@@ -28,11 +28,9 @@ int add_to_opt(Opt& opt, vector<unsigned long>& first_pages) {
         opt.ma_p.insert(make_pair(opt.pages[i].first, i));
     }
     for(int i = 0; i < (int)opt.pages.size(); i++) {
-        //cout << opt.pages[i].first;
         bool match = false;
         for(int j = 0; j < (int)opt.cache.size(); j++) {
             if(opt.pages[i].first == opt.cache[j].first) {
-                //cout << "+ ";
                 match = true;
                 opt.cache[j] = opt.pages[i];
                 break;
@@ -41,7 +39,6 @@ int add_to_opt(Opt& opt, vector<unsigned long>& first_pages) {
         int index = 0;
         int reference = 0;
         if(match == false){
-            //cout << "- ";
             opt_page_fault++;
             if((int)opt.cache.size() < max_size) {//просто дописываем
                 opt.cache.push_back(opt.pages[i]);
@@ -55,10 +52,6 @@ int add_to_opt(Opt& opt, vector<unsigned long>& first_pages) {
                 opt.cache[reference] = opt.pages[i];
             }
         }
-        /*for(auto i: opt.cache) {
-            cout << " " << i.first << " \""<< i.second << "\"";
-        }
-        cout << endl;*/
     }
     return opt_page_fault;
 }

@@ -251,8 +251,7 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
             {
                 perror("Replacing stdout");
             }
-            if(close(output) < 0)
-            {
+            if(close(output) < 0) {
                 perror("Closing incoming output");
             }
         }
@@ -261,8 +260,7 @@ void extern_command(std::vector<std::string>& allcommands, int input, int output
             {
                 perror("Replacing stdin");
             }
-            if(close(input) < 0)
-            {
+            if(close(input) < 0) {
                 perror("Closing incoming input");
             }
         }
