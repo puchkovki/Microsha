@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+test
 
 # Precompiled Headers
 *.gch
@@ -30,3 +31,13 @@
 *.exe
 *.out
 *.app
+
+# Git files
+*.gitattributes
+*.gitignore
+
+# Vscode files
+*.Vscode
+
+# Output files
+*.txt
