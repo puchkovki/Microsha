@@ -1,18 +1,19 @@
-#include <iostream>
+// Copyright 2018 Puchkov Kyryll
 #include <unistd.h>
 #include <sys/types.h>
-#include <string>
-#include <vector>
 #include <errno.h>
 #include <stdlib.h>
-#include <sstream>
 #include <sys/times.h>
-#include <iomanip>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <glob.h>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <csignal>
-#include <glob.h>
 #include <cstring>
 
 int write_path_name(void);
@@ -34,50 +35,50 @@ void (*pointers_to_functions[])(std::vector<std::string>& allcommands, int input
 std::string inner_command[amount_of_commands] = {"cd", "pwd", "time", "exit"};
 
 int write_path_name(void) {
-	char * si_path_name = getcwd(nullptr, 0); //возрващает директорию в сишных строках
-	if(si_path_name != nullptr) { //директория получена успешно
-		std::string plus_path_name = si_path_name;
-		size_t found = 	plus_path_name.find_last_of("/"); //поиск первого "/"
-		char uid;
-		if(getuid() == 0) //оценка уровня привилегированности пользователя
-			uid = '!'; //привилегированный
-		else
-			uid = '>'; //непривилегированный
-		plus_path_name = plus_path_name.substr(found + 1);
-		if(plus_path_name == "") {
-			plus_path_name = "/";
-		}
-		std::cout << plus_path_name << " " << uid << " " << std::flush; //вывод названия текущей папки (рабочей директории)
-	} else {
-		std::cerr << "Sorry, Microsha cannot find out the directory name\n";
-	}
-	free(si_path_name);
-	return 0;
+    char * si_path_name = getcwd(nullptr, 0);  // возрващает директорию в сишных строках
+    if (si_path_name != nullptr) {  // директория получена успешно
+        std::string plus_path_name = si_path_name;
+        size_t found = plus_path_name.find_last_of("/");  // поиск первого "/"
+        char uid;
+        if (getuid() == 0)  // оценка уровня привилегированности пользователя
+            uid = '!';  // привилегированный
+        else
+            uid = '>';  // непривилегированный
+        plus_path_name = plus_path_name.substr(found + 1);
+        if (plus_path_name == "") {
+            plus_path_name = "/";
+        }
+        std::cout << plus_path_name << " " << uid << " " << std::flush;  // вывод названия текущей папки (рабочей директории)
+    } else {
+        std::cerr << "Sorry, Microsha cannot find out the directory name\n";
+    }
+    free(si_path_name);
+    return 0;
 }
 
 bool read_commands(std::string& commands) {
-	std::cin.clear();
-	if(!getline(std::cin,commands)) {
+    std::cin.clear();
+    if (!getline(std::cin,commands)) {
         perror("Microsha");
-		return false;
-    } //считывает до \n, \r, \0, EOF
-	return true;
+        return false;
+    }  // считывает до \n, \r, \0, EOF
+    return true;
 }
 
 void split_extern_commands(std::string& commands, std::vector<std::string>& allcommands) {
-	while(commands.size() > 0) { //разделяем программы на вектор строк по прямому слешу
-		int slash;
-		std::string one_command = commands;
-		//std::cout << commands << std::endl;
-		if((slash = commands.find_first_of('|')) != std::string::npos) {
-			one_command = commands.substr(0, slash);
-		} else {
-			slash = commands.size() - 1;
-		}
-		allcommands.push_back(one_command);
-		commands.erase(0, slash + 1);
-	}
-	return;
+    while (commands.size() > 0) {  // разделяем программы на вектор строк по прямому слешу
+        int slash;
+        std::string one_command = commands;
+        // std::cout << commands << std::endl;
+        if ((slash = commands.find_first_of('|')) != std::string::npos) {
+            one_command = commands.substr(0, slash);
+        } else {
+            slash = commands.size() - 1;
+        }
+        allcommands.push_back(one_command);
+        commands.erase(0, slash + 1);
+    }
+    return;
 }
 
 int split_intern_commands(std::string& commands, std::vector<std::string>& allcommands, int& input, int&output) {
@@ -330,8 +331,7 @@ int main(void) {
 
 	bool status; 
 
-    do
-	{
+    do {
 		status = true;
 		bool conveyer = false;
 		bool match = false;
